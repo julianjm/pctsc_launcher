@@ -47,7 +47,10 @@ int main(int argc, char *argv[]) {
 	GHashTable *settings;
 	GSList *applications;
 
-	parse_config_xml(file, &settings, &applications);
+	if (parse_config_xml(file, &settings, &applications)) {
+		printf("Parsing failed\n");
+		exit(1);
+	}
 
 
 	if (strcmp(argv[1], "gtkmainmenu")==0) {

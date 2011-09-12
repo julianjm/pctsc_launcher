@@ -216,7 +216,6 @@ int parse_config_xml(char *filename, GHashTable **settings, GSList **application
 		NULL);
 
 	if (g_file_get_contents(filename, &text, &length, NULL) == FALSE) {
-		printf("Couldn't load XML file %s\n",filename);
 		return 1;
 	}
 
@@ -224,7 +223,6 @@ int parse_config_xml(char *filename, GHashTable **settings, GSList **application
 
 
 	if (g_markup_parse_context_parse (context, text, length, NULL) == FALSE) {
-		printf("Parse failed\n");
 		return 1;
 	}
 
