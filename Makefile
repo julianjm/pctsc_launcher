@@ -1,4 +1,4 @@
-NAME=pctscconfig
+NAME=pctsclauncher
 CFLAGS=-g -Wall -o $(NAME)
 GTKFLAGS=-export-dynamic `pkg-config --cflags --libs gtk+-2.0 glib-2.0`
 SRCS=main.c xmlparser.c gtkmainmenu.c
