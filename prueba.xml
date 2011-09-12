@@ -1,0 +1,21 @@
+<pctsc>
+  <settings>
+    <hostname>thinclient1</hostname>
+    <xserver>Xvesa ....</xserver>
+    <resolution>1024x768</resolution>
+  </settings>
+
+
+  <applications>
+    <application>
+      <title>RDP Connect to Server</title>
+      <cmd>/usr/bin/rdesktop -z -P ts.mycompany.com</cmd>
+    </application>
+
+    <application>
+      <title>VNC connection to Server 2</title>
+      <cmd>/usr/bin/vncclient vnc.mycompany.com</cmd>
+    </application>
+
+  </applications>
+</pctsc>
