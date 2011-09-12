@@ -34,7 +34,7 @@ void shellexport(GHashTable *settings, GSList *applications) {
 int main(int argc, char *argv[]) {
 
 	if (argc!=3) {
-		printf("Usage: %s <gtkmenu|export> <configfile>\n", argv[0]);
+		printf("Usage: %s <gtkmainmenu|shellexport> <configfile>\n", argv[0]);
 		exit(1);
 	}
 
@@ -50,7 +50,7 @@ int main(int argc, char *argv[]) {
 	parse_config_xml(file, &settings, &applications);
 
 
-	if (strcmp(argv[1], "gtkmenu")==0) {
+	if (strcmp(argv[1], "gtkmainmenu")==0) {
 		gtkmainmenu(argc, argv, settings, applications);
 	} else if (strcmp(argv[1], "shellexport")==0) {
 		shellexport(settings, applications);
