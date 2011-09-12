@@ -1,5 +1,6 @@
-#include <glib.h>
 #include <stdio.h>
+#include <glib.h>
+#include <string.h>
 
 typedef struct
 {
@@ -63,6 +64,7 @@ static void parse_info_init(ParseInfo *pi) {
 	pi->states = g_slist_prepend(NULL, GINT_TO_POINTER(STATE_START));
 
 	pi->settings = g_hash_table_new(g_str_hash, g_str_equal);
+	pi->applications = NULL;
 }
 
 static void parse_info_free(ParseInfo *pi) {
@@ -125,6 +127,7 @@ void start_element (GMarkupParseContext *context,
 				g_set_error(error, G_MARKUP_ERROR, G_MARKUP_ERROR_PARSE, "<%s> Not allowed here, only <title> or <cmd>", element_name);
 			}
 			break;
+		default:break;
 	}
 }
 
@@ -147,6 +150,7 @@ void text(GMarkupParseContext *context,
 		case STATE_APPLICATION_CMD:
 			pi->tmp_text = g_strndup(text, text_len);
 			break;
+		default:break;
 	}
 			
 }
@@ -181,6 +185,7 @@ void end_element (GMarkupParseContext *context,
 			pi->tmp_app=NULL;
 			pop_state(pi);
 			break;
+		default:break;
 
 	}
 }
@@ -197,7 +202,7 @@ static GMarkupParser parser = {
 
 
 
-int parse(char *filename) {
+int parse_config_xml(char *filename, GHashTable **settings, GSList **applications) {
 	char *text;
 	gsize length;
 
@@ -227,7 +232,15 @@ int parse(char *filename) {
 	g_markup_parse_context_free(context);
 
 
+	*applications = pi.applications;
+	*settings = pi.settings;
 
+	pi.applications=NULL;
+	pi.settings=NULL;
+
+	parse_info_free(&pi);
+
+	return 0;
 	//Tests
 	printf("hostname: %s\n", (char*)g_hash_table_lookup(pi.settings, "hostname"));
 	printf("xserver: %s\n", (char*)g_hash_table_lookup(pi.settings, "xserver"));
@@ -243,6 +256,3 @@ int parse(char *filename) {
 }
 
 
-int main(void) {
-	parse("prueba.xml");
-}

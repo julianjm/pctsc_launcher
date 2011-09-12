@@ -1,12 +1,12 @@
 #include <gtk/gtk.h>
+#include "xmlparser.h"
 
 gint delete_event (GtkWidget *widget, GdkEvent *event, gpointer data) {
 	gtk_main_quit();
 	return FALSE;
 }
 
-void main(int argc, char *argv[]) {
-
+void gtkmainmenu(int argc, char *argv[], GHashTable *settings, GSList *applications) {
 	gtk_init(&argc, &argv);
 
 	GtkWidget *window;
@@ -20,9 +20,16 @@ void main(int argc, char *argv[]) {
 	box1 = gtk_vbox_new(FALSE,10);
 
 	GtkWidget *button;
-	button = gtk_button_new_with_label("Boton1");
-	gtk_box_pack_start(GTK_BOX(box1), button, TRUE, TRUE, TRUE);
-	gtk_widget_show(button);
+
+	GSList *apps=applications;
+	while(apps) {
+		ApplicationInfo *ai=(ApplicationInfo*)apps->data;
+printf("%s\n", ai->title);
+		button = gtk_button_new_with_label(ai->title);
+		gtk_box_pack_start(GTK_BOX(box1), button, TRUE, TRUE, TRUE);
+		gtk_widget_show(button);
+		apps=g_slist_next(apps);
+	}
 
 	gtk_container_add(GTK_CONTAINER(window), box1);
 
