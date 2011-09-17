@@ -3,6 +3,9 @@
     <hostname>thinclient1</hostname>
     <xserver>Xvesa ....</xserver>
     <resolution>1024x768</resolution>
+
+    <logo_img>logo.gif</logo_img>
+    <title>This is the menu title</title>
   </settings>
 
 

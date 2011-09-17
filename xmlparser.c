@@ -32,6 +32,28 @@ typedef struct
 } ParseInfo;
 
 
+////////////////////////////////////////////
+
+void applist_free(GSList *apps) {
+	GSList *ptmp = apps;
+	while(ptmp) {
+		ApplicationInfo *data;
+		data = ptmp->data;
+		if (data->title)
+			g_free(data->title);
+		if (data->cmd)
+			g_free(data->cmd);
+		g_free(data);
+		ptmp=g_slist_next(ptmp);
+	}
+	g_slist_free(apps);
+}
+
+void settings_free(GHashTable *settings) {
+	if (!settings)
+		return;
+	g_hash_table_destroy(settings);	
+}
 
 
 ////////////////////////////////////////////
@@ -63,12 +85,16 @@ static ParseState peek_state (ParseInfo *pi) {
 static void parse_info_init(ParseInfo *pi) {
 	pi->states = g_slist_prepend(NULL, GINT_TO_POINTER(STATE_START));
 
-	pi->settings = g_hash_table_new(g_str_hash, g_str_equal);
+	pi->settings = g_hash_table_new_full(g_str_hash, g_str_equal,g_free,g_free);
 	pi->applications = NULL;
 }
 
 static void parse_info_free(ParseInfo *pi) {
-
+	while(pi->states) {
+		g_slist_free(pi->states);
+		pi->states=NULL;
+//		pi->states = g_slist_remove(pi->states,pi->states->data);
+	}
 }
 
 ///////////////////////////////////////////
@@ -145,6 +171,7 @@ void text(GMarkupParseContext *context,
 		case STATE_SETTING_VALUE:
 			value = g_strndup(text,text_len);
 			g_hash_table_insert(pi->settings, pi->tmp_text, value);
+			pi->tmp_text=NULL;
 			break;
 		case STATE_APPLICATION_TITLE:
 		case STATE_APPLICATION_CMD:
@@ -216,6 +243,8 @@ int parse_config_xml(char *filename, GHashTable **settings, GSList **application
 		NULL);
 
 	if (g_file_get_contents(filename, &text, &length, NULL) == FALSE) {
+		parse_info_free(&pi);
+		g_markup_parse_context_free(context);
 		return 1;
 	}
 
@@ -223,11 +252,12 @@ int parse_config_xml(char *filename, GHashTable **settings, GSList **application
 
 
 	if (g_markup_parse_context_parse (context, text, length, NULL) == FALSE) {
+		parse_info_free(&pi);
+		g_markup_parse_context_free(context);
+		g_free(text);
 		return 1;
 	}
 
-	g_free(text);
-	g_markup_parse_context_free(context);
 
 
 	*applications = pi.applications;
@@ -237,6 +267,8 @@ int parse_config_xml(char *filename, GHashTable **settings, GSList **application
 	pi.settings=NULL;
 
 	parse_info_free(&pi);
+	g_free(text);
+	g_markup_parse_context_free(context);
 
 	return 0;
 	//Tests

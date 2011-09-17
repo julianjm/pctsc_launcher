@@ -15,10 +15,12 @@ int file_exists(char *filename) {
 
 void shellexport(GHashTable *settings, GSList *applications) {
 	GList *keys = g_hash_table_get_keys(settings);
-	while(keys) {
-		printf("setting_%s=\"%s\"\n", (char*)keys->data, (char*)g_hash_table_lookup(settings, keys->data));
-		keys=g_list_next(keys);
+	GList *tmpkey = keys;
+	while(tmpkey) {
+		printf("setting_%s=\"%s\"\n", (char*)tmpkey->data, (char*)g_hash_table_lookup(settings, tmpkey->data));
+		tmpkey=g_list_next(tmpkey);
 	}
+	g_list_free(keys);
 
 	GSList *apps = applications;
 	int i=1;
@@ -54,10 +56,17 @@ int main(int argc, char *argv[]) {
 
 
 	if (strcmp(argv[1], "gtkmainmenu")==0) {
-		gtkmainmenu(argc, argv, settings, applications);
+		gtkmainmenu(&argc, &argv, settings, applications);
 	} else if (strcmp(argv[1], "shellexport")==0) {
 		shellexport(settings, applications);
 	}
+
+	applist_free(applications);
+	settings_free(settings);
+
+	applications=NULL;
+	settings=NULL;
+	
 
 	return 0;
 }
