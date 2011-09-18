@@ -2,11 +2,7 @@
 #include <glib.h>
 #include <string.h>
 
-typedef struct
-{
-	char *title;
-	char *cmd;
-} ApplicationInfo;
+#include "xmlparser.h"
 
 
 typedef enum
@@ -18,7 +14,8 @@ typedef enum
 	STATE_APPLICATIONS,
 	STATE_APPLICATION,
 	STATE_APPLICATION_TITLE,
-	STATE_APPLICATION_CMD
+	STATE_APPLICATION_CMD,
+	STATE_APPLICATION_ICON
 } ParseState;
 
 typedef struct
@@ -43,6 +40,8 @@ void applist_free(GSList *apps) {
 			g_free(data->title);
 		if (data->cmd)
 			g_free(data->cmd);
+		if (data->icon)
+			g_free(data->icon);
 		g_free(data);
 		ptmp=g_slist_next(ptmp);
 	}
@@ -149,6 +148,8 @@ void start_element (GMarkupParseContext *context,
 				push_state(pi, STATE_APPLICATION_TITLE);
 			} else if (strcmp(element_name, "cmd")==0) {
 				push_state(pi, STATE_APPLICATION_CMD);
+			} else if (strcmp(element_name, "icon")==0) {
+				push_state(pi, STATE_APPLICATION_ICON);
 			} else {
 				g_set_error(error, G_MARKUP_ERROR, G_MARKUP_ERROR_PARSE, "<%s> Not allowed here, only <title> or <cmd>", element_name);
 			}
@@ -175,6 +176,7 @@ void text(GMarkupParseContext *context,
 			break;
 		case STATE_APPLICATION_TITLE:
 		case STATE_APPLICATION_CMD:
+		case STATE_APPLICATION_ICON:
 			pi->tmp_text = g_strndup(text, text_len);
 			break;
 		default:break;
@@ -204,6 +206,11 @@ void end_element (GMarkupParseContext *context,
 			break;
 		case STATE_APPLICATION_CMD:
 			pi->tmp_app->cmd = pi->tmp_text;
+			pi->tmp_text=NULL;
+			pop_state(pi);
+			break;
+		case STATE_APPLICATION_ICON:
+			pi->tmp_app->icon = pi->tmp_text;
 			pi->tmp_text=NULL;
 			pop_state(pi);
 			break;
@@ -271,18 +278,6 @@ int parse_config_xml(char *filename, GHashTable **settings, GSList **application
 	g_markup_parse_context_free(context);
 
 	return 0;
-	//Tests
-	printf("hostname: %s\n", (char*)g_hash_table_lookup(pi.settings, "hostname"));
-	printf("xserver: %s\n", (char*)g_hash_table_lookup(pi.settings, "xserver"));
-	printf("resolution: %s\n", (char*)g_hash_table_lookup(pi.settings, "resolution"));
-	printf("LALALA: %s\n", (char*)g_hash_table_lookup(pi.settings, "LALALA"));
-
-	GSList *app = pi.applications;
-	while(app) {
-		ApplicationInfo *ai=app->data;
-		printf("Title: %s\nCommand: %s\n\n", ai->title, ai->cmd);
-		app = g_slist_next(app);
-	}
 }
 
 

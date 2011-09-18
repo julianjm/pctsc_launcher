@@ -3,6 +3,8 @@ typedef struct
 {
 	char *title;
 	char *cmd;
+	char *icon;
+	int shutdownrestart;
 } ApplicationInfo;
 
 int parse_config_xml(char *filename, GHashTable **settings, GSList **applications);
