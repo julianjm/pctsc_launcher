@@ -25,3 +25,17 @@ main: $(SRCS) ui.gtkbuilder.o
 clean:
 	/bin/rm -f $(NAME)
 
+
+tcz: main
+	test -d package || mkdir package
+	rm -rf /tmp/pctsc_package &> /dev/null
+	mkdir -p /tmp/pctsc_package/usr/local/bin
+	cp $(NAME) /tmp/pctsc_package/usr/local/bin
+	strip --strip-unneeded /tmp/pctsc_package/usr/local/bin/$(NAME)
+	mksquashfs /tmp/pctsc_package package/$(NAME).tcz -noappend
+	echo "gtk2.tcz" > package/$(NAME).tcz.dep
+	( cd package ; md5sum $(NAME).tcz ) > package/$(NAME).tcz.md5.txt
+	( cd /tmp/pctsc_package ; find ) > package/$(NAME).tcz.list
+	
+	
+	
